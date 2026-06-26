@@ -1,0 +1,312 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);background:var(--surface-0);color:var(--text-primary)}
+.nav{display:flex;gap:8px;padding:1rem;border-bottom:0.5px solid var(--border);background:var(--surface-2);flex-wrap:wrap}
+.nav button{padding:8px 16px;border-radius:var(--radius);border:0.5px solid var(--border);background:var(--surface-1);color:var(--text-secondary);cursor:pointer;font-size:14px;font-weight:500;transition:all 0.15s}
+.nav button.active{background:var(--bg-accent);color:var(--text-accent);border-color:var(--border-accent)}
+.nav button:hover:not(.active){background:var(--surface-1);border-color:var(--border-strong)}
+.page{display:none;padding:1.5rem;max-width:860px;margin:0 auto}
+.page.active{display:block}
+h2{font-size:18px;font-weight:500;margin-bottom:1.25rem;color:var(--text-primary)}
+h3{font-size:15px;font-weight:500;margin-bottom:0.75rem}
+.card{background:var(--surface-2);border:0.5px solid var(--border);border-radius:12px;padding:1.25rem;margin-bottom:1rem}
+.field{margin-bottom:1rem}
+label{display:block;font-size:13px;color:var(--text-secondary);margin-bottom:4px}
+input,textarea,select{width:100%;padding:8px 12px;border:0.5px solid var(--border);border-radius:var(--radius);background:var(--surface-1);color:var(--text-primary);font-size:14px;font-family:var(--font-sans)}
+textarea{resize:vertical;min-height:80px}
+input:focus,textarea:focus{outline:none;border-color:var(--border-accent);box-shadow:0 0 0 2px var(--bg-accent)}
+.btn-primary{background:var(--fill-accent);color:var(--on-accent);border:none;padding:10px 20px;border-radius:var(--radius);font-size:14px;font-weight:500;cursor:pointer;width:100%;margin-top:0.5rem}
+.btn-primary:hover{background:var(--fill-accent-hover)}
+.btn-primary:disabled{opacity:0.5;cursor:not-allowed}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:1rem}
+.metric{background:var(--surface-1);border-radius:var(--radius);padding:1rem;text-align:center}
+.metric-val{font-size:28px;font-weight:500;color:var(--text-primary)}
+.metric-label{font-size:12px;color:var(--text-muted);margin-top:2px}
+.metric.accent .metric-val{color:var(--text-accent)}
+.metric.success .metric-val{color:var(--text-success)}
+.metric.warning .metric-val{color:var(--text-warning)}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500}
+.badge-high{background:var(--bg-danger);color:var(--text-danger)}
+.badge-medium{background:var(--bg-warning);color:var(--text-warning)}
+.badge-low{background:var(--bg-success);color:var(--text-success)}
+.badge-sent{background:var(--bg-accent);color:var(--text-accent)}
+.badge-opened{background:var(--bg-success);color:var(--text-success)}
+.badge-clicked{background:var(--bg-pro);color:var(--text-pro)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:8px 10px;color:var(--text-muted);font-weight:500;border-bottom:0.5px solid var(--border);font-size:12px}
+td{padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-primary);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+.alert{padding:12px 16px;border-radius:var(--radius);margin-bottom:1rem;font-size:14px}
+.alert-success{background:var(--bg-success);color:var(--text-success);border:0.5px solid var(--border-success)}
+.alert-info{background:var(--bg-accent);color:var(--text-accent);border:0.5px solid var(--border-accent)}
+.ai-box{background:var(--surface-1);border:0.5px solid var(--border-pro);border-radius:var(--radius);padding:12px;margin-top:10px}
+.ai-box .label{font-size:12px;color:var(--text-muted);margin-bottom:4px}
+.ai-row{display:flex;gap:8px;align-items:center;margin-top:6px}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--text-accent);border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty{text-align:center;padding:2rem;color:var(--text-muted);font-size:14px}
+.track-btn{padding:4px 10px;border-radius:var(--radius);border:0.5px solid var(--border);background:var(--surface-0);color:var(--text-secondary);cursor:pointer;font-size:12px}
+.track-btn:hover{background:var(--surface-1)}
+.bar-wrap{background:var(--surface-0);border-radius:4px;height:8px;overflow:hidden;margin-top:6px}
+.bar{height:100%;border-radius:4px;transition:width 0.5s ease;background:var(--fill-accent)}
+.bar.green{background:var(--fill-success)}
+</style>
+
+<h2 style="sr-only">Lead management and email tracking system</h2>
+
+<div class="nav">
+  <button class="active" onclick="showPage('form')"><i class="ti ti-user-plus" aria-hidden="true"></i> Capture lead</button>
+  <button onclick="showPage('leads')"><i class="ti ti-database" aria-hidden="true"></i> Leads <span id="lead-count-badge"></span></button>
+  <button onclick="showPage('email')"><i class="ti ti-mail" aria-hidden="true"></i> Email preview</button>
+  <button onclick="showPage('dashboard')"><i class="ti ti-chart-bar" aria-hidden="true"></i> Dashboard</button>
+</div>
+
+<!-- FORM PAGE -->
+<div id="page-form" class="page active">
+  <h2>Submit your details</h2>
+  <div class="card">
+    <div id="form-alert" style="display:none"></div>
+    <div class="grid2">
+      <div class="field"><label>Full name *</label><input id="f-name" placeholder="Rahul Sharma" /></div>
+      <div class="field"><label>Email address *</label><input id="f-email" type="email" placeholder="rahul@company.com" /></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Phone number *</label><input id="f-phone" placeholder="+91 98765 43210" /></div>
+      <div class="field"><label>Company name</label><input id="f-company" placeholder="ABC Pvt Ltd (optional)" /></div>
+    </div>
+    <div class="field"><label>Requirement / message *</label><textarea id="f-msg" placeholder="Tell us what you need..."></textarea></div>
+    <button class="btn-primary" id="submit-btn" onclick="submitLead()">Submit &amp; send email</button>
+    <div id="ai-result" style="display:none" class="ai-box">
+      <div class="label"><i class="ti ti-sparkles" aria-hidden="true" style="color:var(--text-pro)"></i> AI lead classification</div>
+      <div id="ai-output"></div>
+    </div>
+  </div>
+</div>
+
+<!-- LEADS PAGE -->
+<div id="page-leads" class="page">
+  <h2>All leads</h2>
+  <div class="card" style="padding:0;overflow:hidden">
+    <table id="leads-table">
+      <thead><tr>
+        <th>Name</th><th>Email</th><th>Company</th><th>Requirement</th><th>Category</th><th>Priority</th><th>Submitted</th>
+      </tr></thead>
+      <tbody id="leads-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- EMAIL PREVIEW PAGE -->
+<div id="page-email" class="page">
+  <h2>Email preview &amp; tracking</h2>
+  <div id="email-list"></div>
+</div>
+
+<!-- DASHBOARD PAGE -->
+<div id="page-dashboard" class="page">
+  <h2>Analytics dashboard</h2>
+  <div class="grid3" id="dash-metrics"></div>
+  <div class="card">
+    <h3>Engagement funnel</h3>
+    <div id="funnel"></div>
+  </div>
+  <div class="card">
+    <h3>Recent activity</h3>
+    <table><thead><tr><th>Name</th><th>Email status</th><th>Link clicked</th><th>Category</th></tr></thead>
+    <tbody id="activity-body"></tbody></table>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'lms_leads_v2';
+let leads = [];
+
+function loadLeads(){
+  try{ leads = JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'); }catch(e){ leads=[]; }
+}
+function saveLeads(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(leads)); }
+
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  event.target.classList.add('active');
+  if(id==='leads') renderLeads();
+  if(id==='email') renderEmails();
+  if(id==='dashboard') renderDash();
+}
+
+async function submitLead(){
+  const name=document.getElementById('f-name').value.trim();
+  const email=document.getElementById('f-email').value.trim();
+  const phone=document.getElementById('f-phone').value.trim();
+  const company=document.getElementById('f-company').value.trim();
+  const msg=document.getElementById('f-msg').value.trim();
+  const alert=document.getElementById('form-alert');
+
+  if(!name||!email||!phone||!msg){
+    alert.innerHTML='<div class="alert alert-info">Please fill in all required fields.</div>';
+    alert.style.display='block'; return;
+  }
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    alert.innerHTML='<div class="alert alert-info">Please enter a valid email address.</div>';
+    alert.style.display='block'; return;
+  }
+
+  const btn=document.getElementById('submit-btn');
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span>Classifying &amp; saving...';
+  alert.style.display='none';
+
+  const lead={id:Date.now(), name, email, phone, company, msg,
+    timestamp: new Date().toISOString(),
+    emailSent:true, emailOpened:false, linkClicked:false,
+    category:'Uncategorized', priority:'Medium'};
+
+  const aiBox=document.getElementById('ai-result');
+  const aiOut=document.getElementById('ai-output');
+  aiBox.style.display='block';
+  aiOut.innerHTML='<span class="spinner"></span>Analyzing requirement...';
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-6', max_tokens:200,
+        system:'You are a lead classifier. Respond ONLY with valid JSON, no markdown, no explanation. Return: {"category":"string","priority":"High|Medium|Low","summary":"one sentence"}. Categories: AI Automation, Web Development, Mobile App, E-commerce, Data Analytics, Marketing, General Inquiry, Other.',
+        messages:[{role:'user',content:`Classify this lead requirement: "${msg}"`}]
+      })
+    });
+    const data=await res.json();
+    const text=data.content?.map(c=>c.text||'').join('');
+    const parsed=JSON.parse(text.replace(/```json|```/g,'').trim());
+    lead.category=parsed.category||'General Inquiry';
+    lead.priority=parsed.priority||'Medium';
+    lead.summary=parsed.summary||'';
+    aiOut.innerHTML=`
+      <div class="ai-row"><span class="badge badge-${lead.priority==='High'?'high':lead.priority==='Low'?'low':'medium'}">${lead.priority} priority</span>
+      <span style="font-size:13px;color:var(--text-secondary)">${lead.category}</span></div>
+      <div style="font-size:13px;margin-top:6px;color:var(--text-secondary)">${lead.summary}</div>`;
+  }catch(e){
+    aiOut.innerHTML='<span style="font-size:13px;color:var(--text-muted)">AI classification skipped</span>';
+  }
+
+  leads.push(lead);
+  saveLeads();
+  updateLeadBadge();
+  btn.disabled=false;
+  btn.innerHTML='Submit &amp; send email';
+  alert.innerHTML=`<div class="alert alert-success"><i class="ti ti-check" aria-hidden="true"></i> Lead saved! Personalized email sent to ${email}. Track it in the dashboard.</div>`;
+  alert.style.display='block';
+  document.getElementById('f-name').value='';
+  document.getElementById('f-email').value='';
+  document.getElementById('f-phone').value='';
+  document.getElementById('f-company').value='';
+  document.getElementById('f-msg').value='';
+}
+
+function updateLeadBadge(){
+  const b=document.getElementById('lead-count-badge');
+  if(leads.length>0) b.textContent=`(${leads.length})`;
+}
+
+function renderLeads(){
+  const tbody=document.getElementById('leads-body');
+  if(!leads.length){tbody.innerHTML='<tr><td colspan="7"><div class="empty">No leads yet — submit the form to start.</div></td></tr>';return;}
+  tbody.innerHTML=leads.map(l=>`<tr>
+    <td style="font-weight:500">${esc(l.name)}</td>
+    <td style="color:var(--text-secondary)">${esc(l.email)}</td>
+    <td>${esc(l.company||'—')}</td>
+    <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(l.msg)}">${esc(l.msg)}</td>
+    <td><span style="font-size:12px;color:var(--text-secondary)">${esc(l.category)}</span></td>
+    <td><span class="badge badge-${l.priority==='High'?'high':l.priority==='Low'?'low':'medium'}">${l.priority}</span></td>
+    <td style="color:var(--text-muted);font-size:12px">${new Date(l.timestamp).toLocaleString()}</td>
+  </tr>`).join('');
+}
+
+function renderEmails(){
+  const el=document.getElementById('email-list');
+  if(!leads.length){el.innerHTML='<div class="card"><div class="empty">No emails sent yet.</div></div>';return;}
+  el.innerHTML=leads.map(l=>`
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+        <div>
+          <div style="font-weight:500">${esc(l.name)}</div>
+          <div style="font-size:13px;color:var(--text-secondary)">${esc(l.email)}</div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <span class="badge badge-sent">Sent</span>
+          ${l.emailOpened?'<span class="badge badge-opened">Opened</span>':''}
+          ${l.linkClicked?'<span class="badge badge-clicked">Link clicked</span>':''}
+        </div>
+      </div>
+      <div style="background:var(--surface-1);border-radius:var(--radius);padding:12px;font-size:13px;line-height:1.7;border:0.5px solid var(--border)">
+        <div>Hi ${esc(l.name)},</div><br>
+        <div>Thank you for reaching out${l.company?' from '+esc(l.company):''}.</div>
+        <div>We received your requirement: "<em>${esc(l.msg.slice(0,100))}${l.msg.length>100?'...':''}</em>"</div><br>
+        <div>Learn more: <a href="#" onclick="trackClick('${l.id}');return false" style="color:var(--text-accent)">→ View our solutions [trackable link]</a></div><br>
+        <div style="color:var(--text-muted)">Regards, Team</div>
+      </div>
+      <div style="margin-top:10px;display:flex;gap:8px">
+        ${!l.emailOpened?`<button class="track-btn" onclick="trackOpen('${l.id}')"><i class="ti ti-eye" aria-hidden="true"></i> Simulate open</button>`:'<span style="font-size:12px;color:var(--text-success)"><i class="ti ti-check" aria-hidden="true"></i> Email opened</span>'}
+        ${!l.linkClicked?`<button class="track-btn" onclick="trackClick('${l.id}')"><i class="ti ti-cursor-text" aria-hidden="true"></i> Simulate click</button>`:'<span style="font-size:12px;color:var(--text-pro)"><i class="ti ti-check" aria-hidden="true"></i> Link clicked</span>'}
+      </div>
+    </div>`).join('');
+}
+
+function trackOpen(id){
+  const l=leads.find(x=>String(x.id)===String(id));
+  if(l){l.emailOpened=true;saveLeads();renderEmails();}
+}
+function trackClick(id){
+  const l=leads.find(x=>String(x.id)===String(id));
+  if(l){l.emailOpened=true;l.linkClicked=true;saveLeads();renderEmails();}
+}
+
+function renderDash(){
+  const total=leads.length;
+  const sent=leads.filter(l=>l.emailSent).length;
+  const opened=leads.filter(l=>l.emailOpened).length;
+  const clicked=leads.filter(l=>l.linkClicked).length;
+  const openRate=sent?Math.round(opened/sent*100):0;
+  const clickRate=sent?Math.round(clicked/sent*100):0;
+
+  document.getElementById('dash-metrics').innerHTML=`
+    <div class="metric accent"><div class="metric-val">${total}</div><div class="metric-label">Total leads</div></div>
+    <div class="metric"><div class="metric-val">${sent}</div><div class="metric-label">Emails sent</div></div>
+    <div class="metric success"><div class="metric-val">${opened}</div><div class="metric-label">Emails opened</div></div>
+    <div class="metric warning"><div class="metric-val">${openRate}%</div><div class="metric-label">Open rate</div></div>
+    <div class="metric"><div class="metric-val">${clicked}</div><div class="metric-label">Links clicked</div></div>
+    <div class="metric"><div class="metric-val">${clickRate}%</div><div class="metric-label">Click rate</div></div>`;
+
+  document.getElementById('funnel').innerHTML=`
+    <div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--text-secondary)"><span>Emails sent</span><span>${sent}</span></div>
+      <div class="bar-wrap"><div class="bar" style="width:100%"></div></div>
+    </div>
+    <div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--text-secondary)"><span>Opened</span><span>${opened} (${openRate}%)</span></div>
+      <div class="bar-wrap"><div class="bar green" style="width:${openRate}%"></div></div>
+    </div>
+    <div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--text-secondary)"><span>Link clicked</span><span>${clicked} (${clickRate}%)</span></div>
+      <div class="bar-wrap"><div class="bar" style="width:${clickRate}%;background:var(--fill-pro)"></div></div>
+    </div>`;
+
+  const tbody=document.getElementById('activity-body');
+  if(!leads.length){tbody.innerHTML='<tr><td colspan="4"><div class="empty">No data yet.</div></td></tr>';return;}
+  tbody.innerHTML=[...leads].reverse().slice(0,10).map(l=>`<tr>
+    <td style="font-weight:500">${esc(l.name)}</td>
+    <td>${l.emailOpened?'<span class="badge badge-opened">Opened</span>':'<span class="badge badge-sent">Sent</span>'}</td>
+    <td>${l.linkClicked?'<span class="badge badge-clicked">Clicked</span>':'<span style="font-size:12px;color:var(--text-muted)">—</span>'}</td>
+    <td style="font-size:12px;color:var(--text-secondary)">${esc(l.category)}</td>
+  </tr>`).join('');
+}
+
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+loadLeads();
+updateLeadBadge();
+</script>
